@@ -2,6 +2,8 @@ package org.example.pacman;
 
 import android.content.Context;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -11,12 +13,34 @@ import android.view.View;
 
 public class GameView extends View {
 
+	Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.pacman);
+	Bitmap pacGhost = BitmapFactory.decodeResource(getResources(), R.drawable.pacghost);
+	int pacx = 50;
+	int pacy = 400;
+	int ghostx;
+	int ghosty;
 	Game game;
-    int h,w; //used for storing our height and width of the view
+	int h,w; //used for storing our height and width of the view
 
 	public void setGame(Game game)
 	{
 		this.game = game;
+	}
+
+	public void reset()
+	{
+		pacx = 50;
+		invalidate();
+	}
+
+	public void move(int x)
+	{
+		if (ghostx+pacGhost.getWidth()<w)
+			ghostx = ghostx+x;
+		//still within our boundaries?
+		if (pacx+x+bitmap.getWidth()<w)
+			pacx=pacx+x;
+		invalidate(); //redraw everything
 	}
 
 
@@ -53,9 +77,20 @@ public class GameView extends View {
 		canvas.drawColor(Color.WHITE); //clear entire canvas to white color
 
 		//draw the pacman
-		canvas.drawBitmap(game.getPacBitmap(), game.getPacx(),game.getPacy(), paint);
-		//TODO loop through the list of goldcoins and draw them.
+		canvas.drawBitmap(game.getPacghost(), game.getGhost().getGhostx(), game.getGhost().getGhosty(), paint);
+
+
+		for (GoldCoin coin : game.getCoins())
+		{
+			canvas.drawBitmap(game.getPacBitmap(), game.getPacx(),game.getPacy(), paint);
+			if(coin.isTaken == false)
+			{
+				canvas.drawBitmap(coin.getGoldCoin(), coin.getGoldx(), coin.getGoldy(), paint);
+			}
+		}
+
 		super.onDraw(canvas);
 	}
 
 }
+
